@@ -9,7 +9,7 @@ import datetime
 # Equipo 1: Control Arduino
 def control_arduino():
     # Simulación de recepción de mensaje desde Arduino
-    mensaje = "CAPTURAR"  
+    mensaje = "CAPTURA"  
     mostrar_mensaje(f"Arduino envía: {mensaje}")
 
     if mensaje == "CAPTURAR":
