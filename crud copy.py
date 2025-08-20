@@ -133,6 +133,8 @@ class SistemaDB:
         self.tree_docentes.heading("Estado", text="Estado")
         self.tree_docentes.pack(fill="both", expand=True)
 
+        self.tree_docentes.bind("<Double-1>", self.on_double_click)
+
         # Formulario
         frm = tk.Frame(win)
         frm.pack(pady=10)
@@ -158,7 +160,7 @@ class SistemaDB:
 
         self.cargar_docentes()
 
-    def seleccionar_foto(self):
+    def seleccionar_foto(self ):
         archivo = filedialog.askopenfilename(filetypes=[("Imagen", "*.jpg *.png")])
         if archivo:
             self.entry_foto.delete(0, tk.END)
@@ -236,15 +238,13 @@ class SistemaDB:
         tk.Button(frm, text="Registrar Acceso", command=self.registrar_acceso_gui).grid(row=2, column=0, pady=5)
         tk.Button(frm, text="Actualizar Lista", command=self.cargar_accesos).grid(row=2, column=1)
 
-        self.tree_accesos.bind("<Double-1>", self.on_double_click)
 
         self.cargar_accesos()
 
-    def on_double_click(self):
+    def on_double_click(self, event):
         selected = self.tree_docentes.selection()
-        print("pass")
         if selected:
-            print("pass")
+            print(selected)
             
             
 
