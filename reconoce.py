@@ -6,6 +6,7 @@ import pickle
 import numpy as np
 import sqlite3
 import datetime
+from reconoce1 import crear_dataset
 
 # ===============================
 # Conexión a DB Equipo 4
@@ -32,8 +33,10 @@ os.makedirs(FOTOS_DIR, exist_ok=True)
 # ===============================
 # Función: Captura de fotos
 # ===============================
-def capturar_fotos(docente_id):
+def capturar_fotos(docente_id , docente_nombre):
+    crear_dataset(docente_id)
     messagebox.showinfo("Finalizado", f"Captura de fotos para {docente_nombre} completada.")
+    
 
 # ===============================
 # Función: Generación de patrones
@@ -68,6 +71,8 @@ class ReconocimientoFacial:
         tk.Button(root, text="Programa B - Generar Patrones", width=30, command=generar_patrones).pack(pady=5)
         tk.Button(root, text="Programa C - Reconocimiento en Vivo", width=30, command=self.programa_c).pack(pady=5)
         tk.Button(root, text="Salir", width=30, command=root.destroy).pack(pady=20)
+        
+        
 
     def programa_a(self):
         docentes = listar_docentes()
@@ -82,13 +87,23 @@ class ReconocimientoFacial:
         combo = ttk.Combobox(ventana, values=[str(d[0])+"-"+d[1] for d in docentes])
         combo.pack(pady=5)
         combo.current(0)
+        lbl_contador = tk.Label(ventana, text="", font=("Arial", 40), fg="blue")
+        lbl_contador.pack(pady=20)
 
         def iniciar_captura():
             docente_info= combo.get()
-            docente_nombre = docente_info.split("-")[1]
-            docente_id=docente_info.split("-")[0]  
-            capturar_fotos(docente_id)
-            ventana.destroy()
+            cadena= docente_info.split("-")
+            print(cadena)
+            docente_nombre = cadena[1]
+            docente_id= cadena[0]
+            def countdown(n):
+                if n > 0:
+                    lbl_contador.config(text=str(n)) # actualizar el Label
+                    ventana.after(1000, countdown, n-1)
+                else:
+                    lbl_contador.config(text="¡Ya!")   # mensaje final
+                    ventana.after(500, lambda: [ventana.destroy(), capturar_fotos(docente_id, docente_nombre)])
+            countdown(3)
 
         tk.Button(ventana, text="Iniciar Captura", command=iniciar_captura).pack(pady=10)
 
