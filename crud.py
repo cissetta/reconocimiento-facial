@@ -101,6 +101,7 @@ def listar_accesos():
     conn.close()
     return accesos
 
+
 # ===============================
 # INTERFAZ TKINTER
 # ===============================
@@ -246,8 +247,6 @@ class SistemaDB:
         if selected:
             print("pass")
             
-            
-
 
     def registrar_acceso_gui(self):
         docente_id = self.entry_docente_id.get()
