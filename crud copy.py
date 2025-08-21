@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 import sqlite3
 import datetime
+from PIL import Image, ImageTk, ImageDraw
+
 
 # ===============================
 # Conexión y creación de tablas
@@ -37,6 +39,20 @@ def crear_tablas():
     conn.close()
 
 crear_tablas()
+
+def cargar_imagen(ruta, ancho=50, alto=50):
+    try:
+        # Intentar abrir la imagen
+        img = Image.open(ruta)
+        img = img.resize((ancho, alto))  # redimensionar
+    except Exception:
+        # Si falla, crear una imagen con cruz
+        img = Image.new("RGB", (ancho, alto), "white")
+        draw = ImageDraw.Draw(img)
+        draw.line((0, 0, ancho, alto), fill="red", width=5)
+        draw.line((0, alto, ancho, 0), fill="red", width=5)
+    return ImageTk.PhotoImage(img)
+
 
 # ===============================
 # FUNCIONES DOCENTES
@@ -108,7 +124,19 @@ class SistemaDB:
     def __init__(self, root):
         self.root = root
         self.root.title("Equipo 4 – Base de Datos")
-        self.root.geometry("600x400")
+        # Definir el tamaño de la ventana
+        ancho_ventana = 500
+        alto_ventana = 300
+        # Obtener el tamaño de la pantalla
+        ancho_pantalla = self.root.winfo_screenwidth()
+        alto_pantalla = self.root.winfo_screenheight()
+        # Calcular coordenadas x e y para centrar la ventana
+        x = (ancho_pantalla // 2) - (ancho_ventana // 2)
+        y = (alto_pantalla // 2) - (alto_ventana // 2)
+
+        # Ubicar la ventana en el centro
+        self.root.geometry(f"{ancho_ventana}x{alto_ventana}+{x}+{y}")        
+        #self.root.geometry("600x300")
 
         tk.Label(root, text="Gestión de Docentes y Accesos", font=("Arial", 16, "bold")).pack(pady=10)
 
@@ -121,7 +149,21 @@ class SistemaDB:
     def ventana_docentes(self):
         win = tk.Toplevel(self.root)
         win.title("CRUD Docentes")
-        win.geometry("700x400")
+        # Definir el tamaño de la ventana
+        ancho_ventana = 700
+        alto_ventana = 500
+        # Obtener el tamaño de la pantalla
+        ancho_pantalla = win.winfo_screenwidth()
+        alto_pantalla = win.winfo_screenheight()
+        # Calcular coordenadas x e y para centrar la ventana
+        x = (ancho_pantalla // 2) - (ancho_ventana // 2)
+        y = (alto_pantalla // 2) - (alto_ventana // 2)
+        # Ubicar la ventana en el centro
+        win.geometry(f"{ancho_ventana}x{alto_ventana}+{x}+{y}")      
+        # Hacer la ventana modal
+        win.transient(self.root)     # La asocia a la ventana principal
+        win.grab_set()               # Bloquea interacción con la principal
+        win.focus_set()              # Da foco a la ventana modal
 
         # Lista
         self.tree_docentes = ttk.Treeview(win, columns=("ID","Nombre","Foto","Estado"), show="headings")
@@ -152,6 +194,10 @@ class SistemaDB:
         self.combo_estado = ttk.Combobox(frm, values=["activo","inactivo"])
         self.combo_estado.grid(row=2, column=1)
         self.combo_estado.current(0)
+
+        self.img_tk= cargar_imagen("sin_imagen.png", 50, 50)  
+        self.imagen =tk.Label(frm, image=self.img_tk)
+        self.imagen.grid(row=1, column=3)
 
         tk.Button(frm, text="Agregar", command=self.agregar_docente_gui).grid(row=3, column=0, pady=5)
         tk.Button(frm, text="Modificar", command=self.modificar_docente_gui).grid(row=3, column=1)
@@ -205,6 +251,32 @@ class SistemaDB:
         else:
             messagebox.showwarning("Error", "Seleccione un docente")
 
+    def on_double_click(self, event):
+        selected = self.tree_docentes.selection()
+        if selected:
+            item = self.tree_docentes.item(selected)
+            nombre = item["values"][1]
+            foto = item["values"][2]
+            estado = item["values"][3]
+            print(item["values"])
+            if estado=="activo":
+                self.combo_estado.current(0)
+            else:
+                self.combo_estado.current(1)
+            self.entry_nombre.delete(0, tk.END)
+            self.entry_nombre.insert(0, nombre)
+            self.entry_foto.delete(0, tk.END)
+            self.entry_foto.insert(0, foto)
+            self.actualizar()
+       
+    def actualizar(self):
+        # cambiar la ruta para probar
+        ruta_imagen = self.entry_foto.get()
+        nueva_img = cargar_imagen(ruta_imagen, 50, 50)
+
+        self.imagen.config(image=nueva_img)
+        self.imagen.image = nueva_img  # mantener referencia
+
     # ---------------------------
     # Ventana CRUD Accesos
     # ---------------------------
@@ -213,6 +285,11 @@ class SistemaDB:
         win.title("Accesos")
         win.geometry("700x400")
 
+        # Hacer la ventana modal
+        win.transient(self.root)     # La asocia a la ventana principal
+        win.grab_set()               # Bloquea interacción con la principal
+        win.focus_set()              # Da foco a la ventana modal
+        
         # Lista
         self.tree_accesos = ttk.Treeview(win, columns=("ID","Docente","Fecha","Autorizado"), show="headings")
         self.tree_accesos.heading("ID", text="ID")
@@ -238,15 +315,7 @@ class SistemaDB:
         tk.Button(frm, text="Registrar Acceso", command=self.registrar_acceso_gui).grid(row=2, column=0, pady=5)
         tk.Button(frm, text="Actualizar Lista", command=self.cargar_accesos).grid(row=2, column=1)
 
-
         self.cargar_accesos()
-
-    def on_double_click(self, event):
-        selected = self.tree_docentes.selection()
-        if selected:
-            print(selected)
-            
-            
 
 
     def registrar_acceso_gui(self):
