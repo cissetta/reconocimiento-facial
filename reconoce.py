@@ -7,6 +7,8 @@ import numpy as np
 import sqlite3
 import datetime
 from reconoce1 import crear_dataset
+from reconoce2 import entrenar_modelo
+from reconoce3 import reconocimiento_en_vivo
 
 # ===============================
 # Conexión a DB Equipo 4
@@ -34,7 +36,7 @@ os.makedirs(FOTOS_DIR, exist_ok=True)
 # Función: Captura de fotos
 # ===============================
 def capturar_fotos(docente_id , docente_nombre):
-    crear_dataset(docente_id)
+    crear_dataset (docente_id)
     messagebox.showinfo("Finalizado", f"Captura de fotos para {docente_nombre} completada.")
     
 
@@ -42,12 +44,14 @@ def capturar_fotos(docente_id , docente_nombre):
 # Función: Generación de patrones
 # ===============================
 def generar_patrones():
+    entrenar_modelo()
     messagebox.showinfo("Patrones", "Generación de patrones completada.")
 
 # ===============================
 # Función: Reconocimiento en vivo
 # ===============================
 def reconocer_docente():
+    reconocimiento_en_vivo()
     recognized = True
     if recognized:
         messagebox.showinfo("Reconocimiento", f"Docente reconocido: {recognized}")
@@ -71,8 +75,6 @@ class ReconocimientoFacial:
         tk.Button(root, text="Programa B - Generar Patrones", width=30, command=generar_patrones).pack(pady=5)
         tk.Button(root, text="Programa C - Reconocimiento en Vivo", width=30, command=self.programa_c).pack(pady=5)
         tk.Button(root, text="Salir", width=30, command=root.destroy).pack(pady=20)
-        
-        
 
     def programa_a(self):
         docentes = listar_docentes()
